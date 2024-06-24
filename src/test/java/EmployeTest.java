@@ -1,6 +1,7 @@
 import org.example.Categorie;
 import org.example.Employe;
 import org.example.Pointage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -8,32 +9,55 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EmployeTest {
+    private Employe rakoto;
+    private Pointage pointageRakoto;
+
+    @BeforeEach
+    public void setUp() {
+        Categorie gardien = new Categorie("Gardien", 56, 110000.0, 0);
+        rakoto = new Employe("Rakoto", "G63001", LocalDate.of(1985, 1, 1), LocalDate.of(2019, 1, 1), LocalDate.of(2023, 1, 1), 110000, gardien);
+        pointageRakoto = new Pointage(rakoto);
+    }
+
     @Test
     public void testCalculerTotalHeures() {
-        Categorie gardien = new Categorie("gardien", 8, 15000, 15000);
-        Employe rakoto = new Employe("Rakoto", "Jean", LocalDate.parse("1995-02-25"), LocalDate.of(1995, 2, 25), LocalDate.of(2019, 1, 1), LocalDate.of(2020, 1, 1), 100000, gardien);
-        Pointage pointageRakoto = new Pointage(rakoto);
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 1), 8, false);
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 2), 8, false);
+        assertEquals(16, pointageRakoto.calculerTotalHeures());
+    }
 
-        for (int i = 1; i <= 30; i++) {
-            LocalDate date = LocalDate.of(2024, 6, i);
-            pointageRakoto.ajouterHeures(date, 8, false);
+    @Test
+    public void testCalculerHeuresSupplementaires() {
+        for (int i = 1; i <= 7; i++) {
+            pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, i), 8, false);
         }
-
-        assertEquals(240, pointageRakoto.calculerTotalHeures());
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 8), 4, false);
+        assertEquals(4, pointageRakoto.calculerHeuresSupplementaires());
     }
 
     @Test
     public void testCalculerHeuresMajorees() {
-        Categorie gardien = new Categorie("Gardien", 56, 110000, 0);
-        Employe rakoto = new Employe("Rakoto", "Jean", LocalDate.parse("1995-02-25"), LocalDate.of(1985, 1, 1), LocalDate.of(2020, 1, 1), null, 110000, gardien);
-        Pointage pointageRakoto = new Pointage(rakoto);
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 1), 8, true); // Nuit (HM30)
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 2), 8, false); // Jour normal
+        pointageRakoto.ajouterHeures(LocalDate.of(2024, 6, 8), 8, false); // Dimanche (HM40)
 
-        for (int i = 1; i <= 30; i++) {
-            LocalDate date = LocalDate.of(2024, 6, i);
-            pointageRakoto.ajouterHeures(date, 8, true);
-        }
+        double[] heuresMajorees = pointageRakoto.calculerHeuresMajorees();
 
-        double[] heuresMajorees = new double[]{pointageRakoto.calculerHeuresMajorees()};
-        assertEquals(240 * 1.3, heuresMajorees[0], 0.01);
+        assertEquals(10.4, heuresMajorees[0], 0.01); // Vérifie les heures de nuit majorées à 130%
+        assertEquals(11.2, heuresMajorees[1], 0.01); // Vérifie les heures du dimanche majorées à 140%
+        assertEquals(0, heuresMajorees[2], 0.01);
+    }
+
+    @Test
+    public void testCalculerSalaireBrut() {
+        double salaireBrut = rakoto.calculerSalaireBrut(56, 8, 12, 0, 0, 0);
+        assertEquals(165785.71428571426, salaireBrut, 0.01);
+    }
+
+    @Test
+    public void testCalculerSalaireNet() {
+        rakoto.setSalaireBrut(125080.0);
+        double salaireNet = rakoto.calculSalaireNet();
+        assertEquals(100064, salaireNet, 0.01);
     }
 }

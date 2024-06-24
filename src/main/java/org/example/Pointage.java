@@ -31,17 +31,17 @@ public class Pointage {
         return Math.max(0, totalHeures - heuresNormales);
     }
 
-    public double calculerHeuresMajorees() {
-        double heuresMajorees = 0;
+    public double[] calculerHeuresMajorees() {
+        double[] heuresMajorees = new double[3];
         for (HeureTravail ht : heuresTravail) {
             LocalDate date = ht.getDate();
             int heures = ht.getHeures();
             if (ht.isNuit()) {
-                heuresMajorees += heures * 1.3; // Travail de nuit (HM30)
+                heuresMajorees[0] += heures * 1.3; // Travail de nuit (HM30)
             } else if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                heuresMajorees += heures * 1.4; // Travail le dimanche (HM40)
+                heuresMajorees[1] += heures * 1.4; // Travail le dimanche (HM40)
             } else if (isFerie(date)) {
-                heuresMajorees += heures * 1.5; // Travail les jours fériés (HM50)
+                heuresMajorees[2] += heures * 1.5; // Travail les jours fériés (HM50)
             }
         }
         return heuresMajorees;

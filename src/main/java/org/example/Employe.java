@@ -15,7 +15,7 @@ public class Employe {
     private Double salaireBrut;
     private Categorie categorie;
 
-    public Employe(String prenom, String numeroMatricule, LocalDate parse, LocalDate dateNaissance,
+    public Employe(String prenom, String numeroMatricule, LocalDate dateNaissance,
                    LocalDate dateEmbauche, LocalDate dateFinContrat, double salaireBrut, Categorie categorie) {
         this.prenom = prenom;
         this.numeroMatricule = numeroMatricule;
